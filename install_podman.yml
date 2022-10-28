@@ -1,0 +1,49 @@
+---
+- name: installing podman
+  hosts: podman
+  tasks:
+    # - name: update cache for ubuntu
+    #  become: true
+        #become_user: root
+        #become_method: su
+        #  apt:
+        # update_cache: yes
+        # when: ansible_distribution in ["Ubuntu"]
+    - name: install podman ubuntu
+      become: true
+        #become_method: su
+        #become_user: root
+      apt:
+        update_cache: yes
+        cache_valid_time: 1000
+        name:
+          - podman
+      when: ansible_distribution in ["Ubuntu"]
+    - name: install podman rocky/alma
+      become: true
+      ansible.builtin.dnf:
+        name: podman
+        state: latest
+        update_cache: yes
+      when: ansible_distribution in ["Rocky", "AlmaLinux"]
+    - name: start podman
+      become: true
+      systemd:
+        daemon-reload: true
+        name: podman
+        enabled: yes
+        state: started
+    - name: pull podman image
+      podman_image:
+        name: docker.io/nginx
+        tag: latest
+    - name: run podman image
+      containers.podman.podman_container:
+        name: nginx_example
+        image: docker.io/nginx:latest
+        recreate: yes
+        state: started
+        ports:
+          - "8080:80"
+
+...

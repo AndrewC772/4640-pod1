@@ -1,0 +1,64 @@
+---
+- name: adding new user to ssh and removing root access
+  hosts: ssh
+  tasks:
+    - name: adding regular user ubuntu with sudo
+      become: true
+      user:
+        name: regular
+        create_home: true
+        shell: "/bin/bash"
+        groups: "sudo"
+      when: ansible_distribution in ["Ubuntu"]
+    - name: adding regular user for rocky/alma with sudo
+      become: true
+      user:
+        name: regular
+        create_home: true
+        shell: "/bin/bash"
+        groups: "wheel"
+      when: ansible_distribution in ["Rocky", "AlmaLinux"]
+    - name: copy ssh file to new user
+      become: true
+      copy:
+        src: ~/.ssh
+        dest: /home/regular/
+        remote_src: yes
+        owner: "regular"
+    - name: remove password requirement for regular user
+      become: true
+      blockinfile:
+        path: /etc/sudoers
+        insertafter: 'root    ALL=(ALL)   ALL'
+        block: |
+          %sudo   ALL=(ALL)   NOPASSWD:ALL
+      when: ansible_distribution in ["Ubuntu"]
+    - name: remove password requirement for wheel
+      become: true
+      blockinfile:
+        path: /etc/sudoers
+        insertafter: 'root    ALL=(ALL)   ALL'
+        block: |
+          %wheel   ALL=(ALL)   NOPASSWD:ALL
+      when: ansible_distribution in ["Rocky", "AlmaLinux"]
+    - name: Configure sshd
+      become: true
+      lineinfile:
+          path: "/etc/ssh/sshd_config"
+          regex: "^PermitRootLogin"
+          line: "PermitRootLogin no"
+          state: present
+    - name: restart sshd in rocky/alma linux
+      become: true
+      systemd:
+        daemon-reload: true
+        name: sshd
+        state: restarted
+      when: ansible_distribution in ["Rocky", "AlmaLinux"]
+    - name: restart sshd in ubuntu
+      become: true
+      systemd:
+        name: ssh
+        state: restarted
+      when: ansible_distribution in ["Ubuntu"]
+...
