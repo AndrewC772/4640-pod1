@@ -1,7 +1,7 @@
 This will work for Ubuntu, Alma Linux and everything except running the container for Rocky Linux
 -Not sure for the reason but even with console access and manually installing and running podman kept getting exited 127 on running a container or any container like hello-world in rocky linx
 	-also attempted to increase specs to minimum requirements didn't change anything. May have something to do with root permissions.
--works fine in the other distributions including alma linux
+-works fine in the other distributions including Alma linux
 
 1. first generate ssh key with vm
 2. get ssh key and save it somewhere the this assumes the private key is named "4640_Lab" where "ansible.cfg" located and is set under group_vars/ALL
