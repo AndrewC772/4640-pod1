@@ -1,5 +1,6 @@
 This will work for Ubuntu, Alma Linux and everything except running the container for Rocky Linux
 -Not sure for the reason but even with console access and manually installing and running podman kept getting exited 127 on running a container or any container like hello-world in rocky linx
+	-also attempted to increase specs to minimum requirements didn't change anything. May have something to do with root permissions.
 -works fine in the other distributions including alma linux
 
 1. first generate ssh key with vm
